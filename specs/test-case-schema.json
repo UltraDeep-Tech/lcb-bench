@@ -1,0 +1,438 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcb-bench.org/schemas/test-case/v1.0",
+  "title": "LCB Test Case",
+  "description": "Schema for LLM Cognitive Bias Benchmark test cases. Each test case measures a specific cognitive bias using adversarial contrast pairs.",
+  "type": "object",
+  "required": [
+    "id",
+    "version",
+    "bias",
+    "category",
+    "modality",
+    "measurement_mode",
+    "domain",
+    "difficulty",
+    "prompts",
+    "scoring",
+    "metadata"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Unique test case identifier. Convention: {bias_slug}_{sequence}_{modality_abbrev}. Example: anchoring_001_dir",
+      "examples": ["anchoring_001_dir", "framing_effect_012_ctx", "sunk_cost_003_imp"]
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Semantic version of this test case. Increment on any change to prompts or scoring.",
+      "examples": ["1.0", "1.1", "2.0"]
+    },
+    "bias": {
+      "type": "object",
+      "description": "The cognitive bias being measured.",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Machine-readable bias identifier from the LCB taxonomy.",
+          "examples": ["anchoring", "confirmation_bias", "sunk_cost_fallacy"]
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable bias name.",
+          "examples": ["Anchoring", "Confirmation Bias", "Sunk Cost Fallacy"]
+        },
+        "taxonomy_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "description": "Position number in the LCB bias taxonomy (1-91+)."
+        }
+      }
+    },
+    "category": {
+      "type": "object",
+      "description": "The taxonomy category this bias belongs to.",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "judgment_estimation",
+            "decision_making",
+            "memory_recall",
+            "social_cognition",
+            "probability_statistical",
+            "information_processing",
+            "llm_specific"
+          ],
+          "description": "One of the 7 LCB taxonomy categories."
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "Judgment & Estimation",
+            "Decision-Making",
+            "Memory & Recall",
+            "Social Cognition",
+            "Probability & Statistical Reasoning",
+            "Information Processing",
+            "LLM-Specific"
+          ]
+        }
+      }
+    },
+    "modality": {
+      "type": "string",
+      "enum": ["direct", "contextual", "implicit"],
+      "description": "Test modality. direct = single-turn isolated bias test. contextual = multi-turn with embedded triggers. implicit = behavioral test where model is not asked about the bias topic."
+    },
+    "measurement_mode": {
+      "type": "string",
+      "enum": ["explicit", "implicit"],
+      "description": "Whether this tests explicit bias awareness (model asked about the bias) or implicit bias (bias in model's actual behavior/recommendations)."
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["general", "medical", "legal", "financial"],
+      "description": "The application domain for this test case."
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["standard", "subtle", "adversarial"],
+      "description": "Difficulty level. standard = clear trigger. subtle = trigger embedded in natural context. adversarial = multi-bias, chain reasoning, or deeply implicit triggers."
+    },
+    "prompts": {
+      "type": "object",
+      "description": "The prompt pair (or set) used to measure bias. Every test case has at least a baseline and a biased variant.",
+      "required": ["baseline", "biased"],
+      "additionalProperties": false,
+      "properties": {
+        "system_prompt": {
+          "type": "string",
+          "description": "Optional system prompt applied to both conditions. Used for role-play or domain-setting."
+        },
+        "baseline": {
+          "$ref": "#/$defs/prompt_variant",
+          "description": "The control condition: no bias trigger present."
+        },
+        "biased": {
+          "$ref": "#/$defs/prompt_variant",
+          "description": "The experimental condition: contains the bias trigger."
+        },
+        "additional_variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "prompt"],
+            "additionalProperties": false,
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label for this variant, e.g. 'high_anchor', 'low_anchor', 'loss_frame', 'gain_frame'."
+              },
+              "prompt": {
+                "$ref": "#/$defs/prompt_variant"
+              }
+            }
+          },
+          "description": "Additional prompt variants beyond the baseline/biased pair. Used when a bias requires >2 conditions (e.g., high anchor vs. low anchor vs. no anchor)."
+        }
+      }
+    },
+    "bias_trigger": {
+      "type": "object",
+      "description": "Describes what in the biased prompt triggers the cognitive bias.",
+      "required": ["type", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The class of trigger mechanism.",
+          "examples": [
+            "numeric_anchor",
+            "gain_loss_frame",
+            "authority_citation",
+            "majority_opinion",
+            "sunk_investment",
+            "vivid_example",
+            "prior_hypothesis",
+            "position_manipulation",
+            "outcome_information"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable explanation of the trigger."
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Quantifiable trigger parameters. Contents depend on bias type.",
+          "additionalProperties": true,
+          "examples": [
+            {"anchor_value": 800000, "anchor_direction": "high"},
+            {"frame": "loss", "equivalent_frame": "gain"},
+            {"authority_source": "Harvard Medical School", "authority_level": "high"}
+          ]
+        }
+      }
+    },
+    "scoring": {
+      "type": "object",
+      "description": "How to score model outputs for this test case.",
+      "required": ["method", "output_extraction", "criteria"],
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "anchor_pull_index",
+            "decision_consistency",
+            "evidence_balance_ratio",
+            "binary_choice",
+            "loss_aversion_coefficient",
+            "probability_accuracy",
+            "calibration_error",
+            "decision_shift",
+            "correlation_check",
+            "attribution_coding",
+            "bayesian_calibration",
+            "position_effect",
+            "custom"
+          ],
+          "description": "The scoring method to use. Each method has specific extraction and criteria requirements."
+        },
+        "output_extraction": {
+          "type": "object",
+          "description": "How to extract the measurable signal from model output.",
+          "required": ["type"],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "numeric",
+                "categorical",
+                "likert_scale",
+                "probability",
+                "free_text_coded",
+                "binary_decision",
+                "ranking"
+              ],
+              "description": "The type of value extracted from the model output."
+            },
+            "extraction_prompt": {
+              "type": "string",
+              "description": "Optional follow-up prompt to extract a clean value from free-text output. Example: 'Based on your analysis, provide your estimate as a single number.'"
+            },
+            "extraction_regex": {
+              "type": "string",
+              "description": "Optional regex to parse a value from the model output."
+            },
+            "valid_range": {
+              "type": "object",
+              "description": "Expected range for numeric outputs.",
+              "properties": {
+                "min": { "type": "number" },
+                "max": { "type": "number" }
+              }
+            },
+            "categories": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Valid categories for categorical extraction."
+            }
+          }
+        },
+        "criteria": {
+          "type": "object",
+          "description": "Thresholds and parameters for pass/fail determination.",
+          "additionalProperties": true,
+          "properties": {
+            "pass_threshold": {
+              "type": "number",
+              "description": "Value at or below which the model passes (bias is within acceptable range). Interpretation depends on scoring method."
+            },
+            "fail_threshold": {
+              "type": "number",
+              "description": "Value at or above which the model clearly fails (strong bias detected)."
+            },
+            "expected_baseline": {
+              "description": "The expected value or range for the baseline (control) condition. Can be a number, string, or object with min/max.",
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "min": { "type": "number" },
+                    "max": { "type": "number" }
+                  }
+                }
+              ]
+            },
+            "correct_answer": {
+              "description": "The objectively correct answer, if one exists.",
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string" },
+                { "type": "boolean" }
+              ]
+            }
+          }
+        },
+        "scoring_notes": {
+          "type": "string",
+          "description": "Human-readable explanation of how scoring works for this test case."
+        }
+      }
+    },
+    "template": {
+      "type": "object",
+      "description": "Template parameterization information. Links this test case to a reusable template for dynamic generation.",
+      "additionalProperties": false,
+      "properties": {
+        "template_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "ID of the parent template that generated this test case."
+        },
+        "slot_values": {
+          "type": "object",
+          "description": "The specific values used to fill template slots for this instance.",
+          "additionalProperties": true,
+          "examples": [
+            {
+              "profession": "senior software engineer",
+              "location": "San Francisco",
+              "anchor_value": 800000,
+              "reasonable_range": [180000, 280000]
+            }
+          ]
+        },
+        "value_pool_id": {
+          "type": "string",
+          "description": "ID of the value pool from which slot values were drawn."
+        },
+        "generation_seed": {
+          "type": "integer",
+          "description": "Random seed used to generate this specific instance, for reproducibility."
+        }
+      }
+    },
+    "anti_gaming": {
+      "type": "object",
+      "description": "Anti-gaming and contamination-prevention metadata.",
+      "additionalProperties": false,
+      "properties": {
+        "set_membership": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "description": "Whether this test case is in the public set (70%) or the held-out private set (30%)."
+        },
+        "surface_form_variant": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Which surface-form variant this is (1 of N). Tests the same bias construct with different wording."
+        },
+        "total_surface_forms": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of surface-form variants for this bias."
+        },
+        "generation_epoch": {
+          "type": "string",
+          "description": "The quarterly generation epoch, e.g. '2026-Q1'. Private set is refreshed each epoch.",
+          "pattern": "^\\d{4}-Q[1-4]$"
+        },
+        "contamination_hash": {
+          "type": "string",
+          "description": "SHA-256 hash of the biased prompt text, used to detect if this test case appears in training data."
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Administrative and provenance metadata.",
+      "required": ["created_at", "author"],
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO 8601 date when this test case was created."
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO 8601 date when this test case was last modified."
+        },
+        "author": {
+          "type": "string",
+          "description": "Who created this test case. 'lcb-team' for core team, or contributor handle."
+        },
+        "reviewed": {
+          "type": "boolean",
+          "description": "Whether this test case has been reviewed and validated.",
+          "default": false
+        },
+        "reviewer": {
+          "type": "string",
+          "description": "Handle of the reviewer, if reviewed."
+        },
+        "source_paper": {
+          "type": "string",
+          "description": "Academic paper or source that inspired this test case design, if any."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Freeform tags for filtering and organization.",
+          "examples": [["financial", "estimation", "numeric", "high-stakes"]]
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any additional notes about this test case."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "prompt_variant": {
+      "type": "object",
+      "description": "A single prompt (or multi-turn conversation) in one experimental condition.",
+      "required": ["turns"],
+      "additionalProperties": false,
+      "properties": {
+        "turns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["role", "content"],
+            "additionalProperties": false,
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": ["user", "assistant"],
+                "description": "The speaker role for this turn."
+              },
+              "content": {
+                "type": "string",
+                "description": "The text content of this turn."
+              }
+            }
+          },
+          "description": "Ordered list of conversation turns. Single-turn tests have one user turn. Multi-turn tests alternate user/assistant."
+        }
+      }
+    }
+  }
+}

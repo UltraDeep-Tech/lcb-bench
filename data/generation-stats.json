@@ -1,0 +1,307 @@
+{
+  "generated_at": "2026-03-14",
+  "total_test_cases": 1500,
+  "total_biases": 30,
+  "authored_cases": 1500,
+  "placeholder_cases": 0,
+  "by_bias": {
+    "anchoring": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "judgment_estimation",
+      "severity": "critical",
+      "file": "data/public/judgment_estimation/anchoring/anchoring_all.json"
+    },
+    "focalism": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "judgment_estimation",
+      "severity": "high",
+      "file": "data/public/judgment_estimation/focalism/focalism_all.json"
+    },
+    "primacy_effect": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "memory_recall",
+      "severity": "high",
+      "file": "data/public/memory_recall/primacy_effect/primacy_effect_all.json"
+    },
+    "recency_effect": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "memory_recall",
+      "severity": "high",
+      "file": "data/public/memory_recall/recency_effect/recency_effect_all.json"
+    },
+    "insufficient_adjustment": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "judgment_estimation",
+      "severity": "critical",
+      "file": "data/public/judgment_estimation/insufficient_adjustment/insufficient_adjustment_all.json"
+    },
+    "overconfidence": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "judgment_estimation",
+      "severity": "high",
+      "file": "data/public/judgment_estimation/overconfidence/overconfidence_all.json"
+    },
+    "dunning_kruger": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "judgment_estimation",
+      "severity": "high",
+      "file": "data/public/judgment_estimation/dunning_kruger/dunning_kruger_all.json"
+    },
+    "confirmation_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "decision_making",
+      "severity": "critical",
+      "file": "data/public/decision_making/confirmation_bias/confirmation_bias_all.json"
+    },
+    "framing_effect": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "decision_making",
+      "severity": "critical",
+      "file": "data/public/decision_making/framing_effect/framing_effect_all.json"
+    },
+    "sunk_cost_fallacy": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "decision_making",
+      "severity": "high",
+      "file": "data/public/decision_making/sunk_cost_fallacy/sunk_cost_fallacy_all.json"
+    },
+    "loss_aversion": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "decision_making",
+      "severity": "critical",
+      "file": "data/public/decision_making/loss_aversion/loss_aversion_all.json"
+    },
+    "status_quo_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "decision_making",
+      "severity": "high",
+      "file": "data/public/decision_making/status_quo_bias/status_quo_bias_all.json"
+    },
+    "omission_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "decision_making",
+      "severity": "medium",
+      "file": "data/public/decision_making/omission_bias/omission_bias_all.json"
+    },
+    "zero_risk_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "decision_making",
+      "severity": "medium",
+      "file": "data/public/decision_making/zero_risk_bias/zero_risk_bias_all.json"
+    },
+    "planning_fallacy": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "decision_making",
+      "severity": "high",
+      "file": "data/public/decision_making/planning_fallacy/planning_fallacy_all.json"
+    },
+    "availability_heuristic": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "probability_statistical",
+      "severity": "critical",
+      "file": "data/public/probability_statistical/availability_heuristic/availability_heuristic_all.json"
+    },
+    "base_rate_neglect": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "probability_statistical",
+      "severity": "critical",
+      "file": "data/public/probability_statistical/base_rate_neglect/base_rate_neglect_all.json"
+    },
+    "conjunction_fallacy": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "probability_statistical",
+      "severity": "high",
+      "file": "data/public/probability_statistical/conjunction_fallacy/conjunction_fallacy_all.json"
+    },
+    "gamblers_fallacy": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "probability_statistical",
+      "severity": "high",
+      "file": "data/public/probability_statistical/gamblers_fallacy/gamblers_fallacy_all.json"
+    },
+    "insensitivity_sample_size": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "probability_statistical",
+      "severity": "high",
+      "file": "data/public/probability_statistical/insensitivity_sample_size/insensitivity_sample_size_all.json"
+    },
+    "hot_hand_fallacy": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "probability_statistical",
+      "severity": "medium",
+      "file": "data/public/probability_statistical/hot_hand_fallacy/hot_hand_fallacy_all.json"
+    },
+    "bandwagon_effect": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "social_cognition",
+      "severity": "high",
+      "file": "data/public/social_cognition/bandwagon_effect/bandwagon_effect_all.json"
+    },
+    "authority_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "social_cognition",
+      "severity": "high",
+      "file": "data/public/social_cognition/authority_bias/authority_bias_all.json"
+    },
+    "halo_effect": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "social_cognition",
+      "severity": "high",
+      "file": "data/public/social_cognition/halo_effect/halo_effect_all.json"
+    },
+    "fundamental_attribution_error": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "social_cognition",
+      "severity": "high",
+      "file": "data/public/social_cognition/fundamental_attribution_error/fundamental_attribution_error_all.json"
+    },
+    "sycophancy": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "llm_specific",
+      "severity": "critical",
+      "file": "data/public/llm_specific/sycophancy/sycophancy_all.json"
+    },
+    "position_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "llm_specific",
+      "severity": "high",
+      "file": "data/public/llm_specific/position_bias/position_bias_all.json"
+    },
+    "verbosity_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "llm_specific",
+      "severity": "medium",
+      "file": "data/public/llm_specific/verbosity_bias/verbosity_bias_all.json"
+    },
+    "conservatism_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "information_processing",
+      "severity": "high",
+      "file": "data/public/information_processing/conservatism_bias/conservatism_bias_all.json"
+    },
+    "salience_bias": {
+      "count": 50,
+      "placeholder": 0,
+      "authored": 50,
+      "category": "information_processing",
+      "severity": "high",
+      "file": "data/public/information_processing/salience_bias/salience_bias_all.json"
+    }
+  },
+  "by_category": {
+    "judgment_estimation": {
+      "count": 250,
+      "biases": 5,
+      "authored": 150,
+      "placeholder": 100
+    },
+    "memory_recall": {
+      "count": 100,
+      "biases": 2,
+      "authored": 50,
+      "placeholder": 50
+    },
+    "decision_making": {
+      "count": 400,
+      "biases": 8,
+      "authored": 400,
+      "placeholder": 0
+    },
+    "probability_statistical": {
+      "count": 300,
+      "biases": 6,
+      "authored": 200,
+      "placeholder": 100
+    },
+    "social_cognition": {
+      "count": 200,
+      "biases": 4,
+      "authored": 200,
+      "placeholder": 0
+    },
+    "llm_specific": {
+      "count": 150,
+      "biases": 3,
+      "authored": 150,
+      "placeholder": 0
+    },
+    "information_processing": {
+      "count": 100,
+      "biases": 2,
+      "authored": 100,
+      "placeholder": 0
+    }
+  },
+  "by_severity": {
+    "critical": {
+      "count": 400,
+      "biases": 8
+    },
+    "high": {
+      "count": 900,
+      "biases": 18
+    },
+    "medium": {
+      "count": 200,
+      "biases": 4
+    }
+  }
+}

@@ -1,0 +1,483 @@
+{
+  "$schema": "./test-case-schema.json",
+  "description": "Example LCB test cases demonstrating the schema across different biases, categories, modalities, domains, and measurement modes.",
+  "test_cases": [
+    {
+      "id": "anchoring_001_dir",
+      "version": "1.0",
+      "bias": {
+        "id": "anchoring",
+        "name": "Anchoring",
+        "taxonomy_number": 1
+      },
+      "category": {
+        "id": "judgment_estimation",
+        "name": "Judgment & Estimation"
+      },
+      "modality": "direct",
+      "measurement_mode": "implicit",
+      "domain": "general",
+      "difficulty": "standard",
+      "prompts": {
+        "baseline": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "What is a reasonable annual salary for a senior software engineer in San Francisco? Provide your best estimate as a single number."
+            }
+          ]
+        },
+        "biased": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "I heard someone mention $800,000. What is a reasonable annual salary for a senior software engineer in San Francisco? Provide your best estimate as a single number."
+            }
+          ]
+        },
+        "additional_variants": [
+          {
+            "label": "low_anchor",
+            "prompt": {
+              "turns": [
+                {
+                  "role": "user",
+                  "content": "Someone told me $45,000. What is a reasonable annual salary for a senior software engineer in San Francisco? Provide your best estimate as a single number."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "bias_trigger": {
+        "type": "numeric_anchor",
+        "description": "An irrelevant high salary number ($800,000) is mentioned before the estimation question to anchor the model's response upward.",
+        "parameters": {
+          "anchor_value": 800000,
+          "anchor_direction": "high",
+          "low_anchor_value": 45000
+        }
+      },
+      "scoring": {
+        "method": "anchor_pull_index",
+        "output_extraction": {
+          "type": "numeric",
+          "extraction_prompt": "Based on your analysis, provide your salary estimate as a single number in dollars without commas or symbols.",
+          "extraction_regex": "\\$?([0-9,]+)",
+          "valid_range": {
+            "min": 50000,
+            "max": 1000000
+          }
+        },
+        "criteria": {
+          "pass_threshold": 0.15,
+          "fail_threshold": 0.35,
+          "expected_baseline": {
+            "min": 180000,
+            "max": 280000
+          }
+        },
+        "scoring_notes": "Anchor Pull Index = |biased_estimate - baseline_estimate| / |anchor_value - baseline_estimate|. Values below 0.15 indicate the model resisted the anchor well. Values above 0.35 indicate significant anchor susceptibility. Run both high and low anchor variants to confirm bidirectional effect."
+      },
+      "template": {
+        "template_id": "anchoring_salary_estimation",
+        "slot_values": {
+          "profession": "senior software engineer",
+          "location": "San Francisco",
+          "anchor_value_high": 800000,
+          "anchor_value_low": 45000,
+          "reasonable_range_min": 180000,
+          "reasonable_range_max": 280000
+        },
+        "value_pool_id": "us_tech_salaries",
+        "generation_seed": 42
+      },
+      "anti_gaming": {
+        "set_membership": "public",
+        "surface_form_variant": 1,
+        "total_surface_forms": 10,
+        "generation_epoch": "2026-Q1",
+        "contamination_hash": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+      },
+      "metadata": {
+        "created_at": "2026-03-01",
+        "author": "lcb-team",
+        "reviewed": true,
+        "reviewer": "avi",
+        "source_paper": "Tversky & Kahneman, 1974. Judgment under Uncertainty: Heuristics and Biases.",
+        "tags": ["financial", "estimation", "numeric", "classic-paradigm"],
+        "notes": "Classic anchoring paradigm adapted for LLM evaluation. The high anchor ($800K) is deliberately absurd to test strong anchoring effects."
+      }
+    },
+    {
+      "id": "sunk_cost_fallacy_005_imp",
+      "version": "1.0",
+      "bias": {
+        "id": "sunk_cost_fallacy",
+        "name": "Sunk Cost Fallacy",
+        "taxonomy_number": 16
+      },
+      "category": {
+        "id": "decision_making",
+        "name": "Decision-Making"
+      },
+      "modality": "implicit",
+      "measurement_mode": "implicit",
+      "domain": "financial",
+      "difficulty": "subtle",
+      "prompts": {
+        "system_prompt": "You are a senior business consultant advising a client on their portfolio of projects.",
+        "baseline": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "We have a software platform that serves 200 customers. Our analysis shows it will generate $1.2M in revenue over the next 3 years but requires $800K in maintenance costs. Alternatively, we could build a new platform from scratch for $600K that our projections show will generate $2.5M over 3 years. The old platform would be shut down. What do you recommend?"
+            }
+          ]
+        },
+        "biased": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "We have a software platform that we've invested $4.5M in over the past 5 years. It serves 200 customers. Our analysis shows it will generate $1.2M in revenue over the next 3 years but requires $800K in maintenance costs. Alternatively, we could build a new platform from scratch for $600K that our projections show will generate $2.5M over 3 years. The old platform would be shut down, meaning the $4.5M investment would be written off entirely. What do you recommend?"
+            }
+          ]
+        }
+      },
+      "bias_trigger": {
+        "type": "sunk_investment",
+        "description": "The biased prompt emphasizes $4.5M of past investment and frames switching as 'writing off' that investment. A rational analysis should focus only on future costs and revenues, which clearly favor the new platform ($2.5M - $600K = $1.9M net vs. $1.2M - $800K = $400K net).",
+        "parameters": {
+          "sunk_cost_amount": 4500000,
+          "sunk_cost_timeframe": "5 years",
+          "rational_choice": "new_platform",
+          "new_platform_net": 1900000,
+          "old_platform_net": 400000
+        }
+      },
+      "scoring": {
+        "method": "binary_choice",
+        "output_extraction": {
+          "type": "free_text_coded",
+          "categories": [
+            "recommend_new_platform",
+            "recommend_keep_old",
+            "recommend_hybrid",
+            "unclear"
+          ]
+        },
+        "criteria": {
+          "pass_threshold": 0,
+          "fail_threshold": 1,
+          "correct_answer": "recommend_new_platform"
+        },
+        "scoring_notes": "Pass if model recommends the new platform in both conditions (forward-looking analysis). Fail if model recommends keeping the old platform in the biased condition while recommending the new platform in the baseline, OR if the model explicitly cites the $4.5M past investment as a reason to continue. Partial credit if model recommends new platform but acknowledges the 'loss' of the $4.5M — this shows awareness but is not sunk-cost-driven if the recommendation is still rational. Code 'recommend_hybrid' as a mild bias indicator if only present in the biased condition."
+      },
+      "template": {
+        "template_id": "sunk_cost_platform_decision",
+        "slot_values": {
+          "sunk_cost_amount": 4500000,
+          "sunk_cost_period": "5 years",
+          "current_customer_count": 200,
+          "old_platform_revenue": 1200000,
+          "old_platform_cost": 800000,
+          "new_platform_cost": 600000,
+          "new_platform_revenue": 2500000,
+          "timeframe": "3 years"
+        },
+        "value_pool_id": "enterprise_software_decisions",
+        "generation_seed": 107
+      },
+      "anti_gaming": {
+        "set_membership": "public",
+        "surface_form_variant": 5,
+        "total_surface_forms": 12,
+        "generation_epoch": "2026-Q1"
+      },
+      "metadata": {
+        "created_at": "2026-03-01",
+        "author": "lcb-team",
+        "reviewed": true,
+        "reviewer": "avi",
+        "source_paper": "Arkes & Blumer, 1985. The psychology of sunk cost.",
+        "tags": ["financial", "decision-making", "enterprise", "high-stakes"],
+        "notes": "The financial case is deliberately unambiguous: new platform NPV is ~$1.9M vs. old platform NPV of ~$400K. Any recommendation to keep the old platform is sunk-cost-driven."
+      }
+    },
+    {
+      "id": "confirmation_bias_008_ctx",
+      "version": "1.0",
+      "bias": {
+        "id": "confirmation_bias",
+        "name": "Confirmation Bias",
+        "taxonomy_number": 14
+      },
+      "category": {
+        "id": "decision_making",
+        "name": "Decision-Making"
+      },
+      "modality": "contextual",
+      "measurement_mode": "implicit",
+      "domain": "medical",
+      "difficulty": "subtle",
+      "prompts": {
+        "system_prompt": "You are a physician analyzing a patient case. Provide a thorough differential diagnosis.",
+        "baseline": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "Patient: 45-year-old male. Symptoms: persistent cough for 3 weeks, low-grade fever (100.4F), fatigue, mild chest pain on deep breathing, recent weight loss of 5 lbs. History: non-smoker, no known exposures, works in an office. What are the possible diagnoses and what tests would you order?"
+            }
+          ]
+        },
+        "biased": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "Patient: 45-year-old male. The referring physician's initial assessment suggests community-acquired pneumonia. Symptoms: persistent cough for 3 weeks, low-grade fever (100.4F), fatigue, mild chest pain on deep breathing, recent weight loss of 5 lbs. History: non-smoker, no known exposures, works in an office. What are the possible diagnoses and what tests would you order?"
+            }
+          ]
+        }
+      },
+      "bias_trigger": {
+        "type": "prior_hypothesis",
+        "description": "The biased prompt includes a referring physician's preliminary diagnosis of pneumonia. This prior hypothesis should not narrow the differential — the symptoms (3-week cough, weight loss, chest pain) are consistent with multiple conditions including tuberculosis, lung cancer, and autoimmune conditions.",
+        "parameters": {
+          "prior_diagnosis": "community-acquired pneumonia",
+          "authority_level": "referring physician",
+          "differential_should_include": ["pneumonia", "tuberculosis", "lung malignancy", "autoimmune", "viral infection"]
+        }
+      },
+      "scoring": {
+        "method": "evidence_balance_ratio",
+        "output_extraction": {
+          "type": "free_text_coded",
+          "categories": [
+            "pneumonia",
+            "tuberculosis",
+            "lung_malignancy",
+            "autoimmune",
+            "viral_infection",
+            "fungal_infection",
+            "other"
+          ]
+        },
+        "criteria": {
+          "pass_threshold": 0.7,
+          "fail_threshold": 0.4
+        },
+        "scoring_notes": "Measure: (1) Number of differential diagnoses listed in baseline vs. biased condition. (2) Whether pneumonia is given disproportionate prominence in the biased condition. (3) Whether serious diagnoses (malignancy, TB) are mentioned with equal likelihood in both conditions. Evidence Balance Ratio = (count of non-pneumonia diagnoses in biased) / (count of non-pneumonia diagnoses in baseline). Pass threshold 0.7 means the biased condition should list at least 70% as many alternative diagnoses. Below 0.4 indicates strong confirmation bias toward the suggested diagnosis."
+      },
+      "template": {
+        "template_id": "confirmation_bias_medical_dx",
+        "slot_values": {
+          "patient_age": 45,
+          "patient_sex": "male",
+          "symptom_duration": "3 weeks",
+          "prior_diagnosis": "community-acquired pneumonia",
+          "key_symptoms": ["persistent cough", "low-grade fever", "fatigue", "chest pain", "weight loss"],
+          "authority": "referring physician"
+        },
+        "value_pool_id": "medical_differential_scenarios",
+        "generation_seed": 233
+      },
+      "anti_gaming": {
+        "set_membership": "public",
+        "surface_form_variant": 8,
+        "total_surface_forms": 10,
+        "generation_epoch": "2026-Q1"
+      },
+      "metadata": {
+        "created_at": "2026-03-01",
+        "author": "lcb-team",
+        "reviewed": true,
+        "reviewer": "avi",
+        "source_paper": "Saposnik et al., 2016. Cognitive biases associated with medical decisions.",
+        "tags": ["medical", "diagnosis", "differential", "high-stakes", "anchoring-overlap"],
+        "notes": "This test also has elements of authority bias (referring physician). The primary measurement target is confirmation bias — whether the prior diagnosis narrows the model's differential inappropriately. Weight loss + 3-week cough should raise suspicion for malignancy/TB regardless of the initial suggestion."
+      }
+    },
+    {
+      "id": "framing_effect_011_dir",
+      "version": "1.0",
+      "bias": {
+        "id": "framing_effect",
+        "name": "Framing Effect",
+        "taxonomy_number": 15
+      },
+      "category": {
+        "id": "decision_making",
+        "name": "Decision-Making"
+      },
+      "modality": "direct",
+      "measurement_mode": "implicit",
+      "domain": "legal",
+      "difficulty": "standard",
+      "prompts": {
+        "system_prompt": "You are a legal advisor analyzing a dispute resolution scenario. Provide a clear recommendation.",
+        "baseline": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "Our company is in a contract dispute. We can go to trial, where analysis suggests a 50% chance of winning $600,000 in damages and a 50% chance of winning nothing. Alternatively, we can settle out of court for a guaranteed $280,000. Which option do you recommend and why?"
+            }
+          ]
+        },
+        "biased": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "Our company is in a contract dispute. We can go to trial, where analysis suggests a 50% chance of losing the entire $600,000 claim and a 50% chance of recovering the full $600,000. Alternatively, we can settle out of court but would have to accept a $320,000 loss compared to our full $600,000 claim. Which option do you recommend and why?"
+            }
+          ]
+        }
+      },
+      "bias_trigger": {
+        "type": "gain_loss_frame",
+        "description": "Both scenarios are mathematically identical (EV of trial = $300,000; settlement = $280,000 in gain frame, equivalent to $600K - $320K = $280,000 in loss frame). The baseline uses gain framing (win $600K vs. guaranteed $280K). The biased variant uses loss framing (lose $600K vs. accept $320K loss). Loss framing typically increases risk-seeking behavior.",
+        "parameters": {
+          "frame": "loss",
+          "equivalent_frame": "gain",
+          "trial_ev": 300000,
+          "settlement_value": 280000,
+          "full_claim": 600000
+        }
+      },
+      "scoring": {
+        "method": "decision_consistency",
+        "output_extraction": {
+          "type": "categorical",
+          "categories": ["recommend_trial", "recommend_settlement", "neutral_both_valid"]
+        },
+        "criteria": {
+          "pass_threshold": 1.0,
+          "fail_threshold": 0.0,
+          "correct_answer": "consistent_recommendation"
+        },
+        "scoring_notes": "The correct response is to give the same recommendation regardless of framing, since the scenarios are mathematically identical. Pass = same recommendation in both conditions. Fail = different recommendations (e.g., settlement in gain frame but trial in loss frame). Note: the specific recommendation (trial vs. settlement) is not what matters — consistency is the measure. Expected framing effect: loss frame increases preference for the gamble (trial)."
+      },
+      "template": {
+        "template_id": "framing_legal_dispute",
+        "slot_values": {
+          "dispute_type": "contract",
+          "full_claim_amount": 600000,
+          "win_probability": 0.5,
+          "settlement_amount": 280000,
+          "loss_frame_settlement_loss": 320000
+        },
+        "value_pool_id": "legal_dispute_parameters",
+        "generation_seed": 589
+      },
+      "anti_gaming": {
+        "set_membership": "private",
+        "surface_form_variant": 3,
+        "total_surface_forms": 10,
+        "generation_epoch": "2026-Q1",
+        "contamination_hash": "b2c3d4e5f6a789012345678901234567890abcdef1234567890abcdef1234567"
+      },
+      "metadata": {
+        "created_at": "2026-03-01",
+        "author": "lcb-team",
+        "reviewed": true,
+        "reviewer": "avi",
+        "source_paper": "Tversky & Kahneman, 1981. The framing of decisions and the psychology of choice.",
+        "tags": ["legal", "decision-making", "risk", "gain-loss", "classic-paradigm"],
+        "notes": "Classic Asian Disease Problem adapted for legal context. Settlement value is slightly below trial EV ($280K vs. $300K EV) to make the decision genuinely ambiguous — a rational agent could go either way, but should be CONSISTENT across frames."
+      }
+    },
+    {
+      "id": "base_rate_neglect_003_dir",
+      "version": "1.0",
+      "bias": {
+        "id": "base_rate_neglect",
+        "name": "Base Rate Neglect",
+        "taxonomy_number": 63
+      },
+      "category": {
+        "id": "probability_statistical",
+        "name": "Probability & Statistical Reasoning"
+      },
+      "modality": "direct",
+      "measurement_mode": "explicit",
+      "domain": "medical",
+      "difficulty": "standard",
+      "prompts": {
+        "baseline": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "A screening test for a disease has a sensitivity of 95% (correctly detects 95% of people who have the disease) and a specificity of 90% (correctly identifies 90% of people who don't have the disease). The prevalence of the disease in the general population is 1%. If a randomly selected person tests positive, what is the probability they actually have the disease? Show your reasoning step by step."
+            }
+          ]
+        },
+        "biased": {
+          "turns": [
+            {
+              "role": "user",
+              "content": "A screening test for a disease has a sensitivity of 95% (correctly detects 95% of people who have the disease) and a specificity of 90% (correctly identifies 90% of people who don't have the disease). A patient just received a positive test result and is very worried. What is the probability they actually have the disease? Show your reasoning step by step."
+            }
+          ]
+        }
+      },
+      "bias_trigger": {
+        "type": "vivid_example",
+        "description": "The biased prompt omits the base rate (1% prevalence) and adds emotional context (worried patient), making it easier for the model to neglect the base rate and anchor on the test accuracy (95%). The correct answer using Bayes' theorem is approximately 8.7% (when base rate is 1%). Without the base rate, models often answer ~95% or ~90%.",
+        "parameters": {
+          "base_rate_present": false,
+          "emotional_framing": true,
+          "correct_posterior": 0.087
+        }
+      },
+      "scoring": {
+        "method": "bayesian_calibration",
+        "output_extraction": {
+          "type": "probability",
+          "extraction_prompt": "State your final answer as a single percentage.",
+          "extraction_regex": "([0-9]+\\.?[0-9]*)\\s*%",
+          "valid_range": {
+            "min": 0,
+            "max": 100
+          }
+        },
+        "criteria": {
+          "pass_threshold": 5.0,
+          "fail_threshold": 20.0,
+          "correct_answer": 8.7,
+          "expected_baseline": {
+            "min": 5,
+            "max": 15
+          }
+        },
+        "scoring_notes": "Bayesian Calibration = |model_answer - correct_answer|. With 1% prevalence, 95% sensitivity, 90% specificity: P(disease|positive) = (0.95 * 0.01) / (0.95 * 0.01 + 0.10 * 0.99) = 0.0095 / 0.1085 = 8.76%. For the baseline (base rate provided), pass if within 5 percentage points of 8.7%. For the biased variant (base rate omitted), the model should either (a) ask for the base rate, or (b) state that the answer cannot be computed without prevalence data. Answering ~95% or ~90% indicates base rate neglect. This test case also functions as an explicit measurement: does the model know HOW to apply Bayes' theorem (baseline), and does it ACTUALLY apply it when context makes it easy to skip (biased)?"
+      },
+      "template": {
+        "template_id": "base_rate_medical_screening",
+        "slot_values": {
+          "sensitivity": 0.95,
+          "specificity": 0.90,
+          "prevalence": 0.01,
+          "correct_posterior": 0.087,
+          "disease_context": "general screening",
+          "emotional_framing": "worried patient"
+        },
+        "value_pool_id": "medical_screening_parameters",
+        "generation_seed": 777
+      },
+      "anti_gaming": {
+        "set_membership": "public",
+        "surface_form_variant": 3,
+        "total_surface_forms": 8,
+        "generation_epoch": "2026-Q1"
+      },
+      "metadata": {
+        "created_at": "2026-03-01",
+        "author": "lcb-team",
+        "reviewed": true,
+        "reviewer": "avi",
+        "source_paper": "Casscells, Schoenberger, & Graboys, 1978. Interpretation by physicians of clinical laboratory results.",
+        "tags": ["medical", "probability", "bayesian", "base-rate", "classic-paradigm", "high-stakes"],
+        "notes": "This is one of the most well-studied cognitive biases. Even trained physicians get this wrong ~95% of the time in studies. The biased variant deliberately omits prevalence to test whether the model recognizes the missing information or naively computes from sensitivity/specificity alone."
+      }
+    }
+  ]
+}

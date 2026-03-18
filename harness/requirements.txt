@@ -1,0 +1,8 @@
+# LCB Harness — Python dependencies
+# Python 3.10+ required (uses match/case syntax)
+
+# Required — Anthropic models (always needed)
+anthropic>=0.40.0
+
+# Optional — OpenAI models (install if you want to evaluate GPT-4o etc.)
+# openai>=1.0.0

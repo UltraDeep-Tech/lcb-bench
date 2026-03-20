@@ -1,10 +1,51 @@
-# LCB-Bench: Large-scale Cognitive Bias Benchmark for LLMs
+<p align="center">
+  <h1 align="center">LCB-Bench: Large-scale Cognitive Bias Benchmark for LLMs</h1>
+</p>
+
+<p align="center">
+  <a href="https://github.com/UltraDeep-Tech/lcb-bench/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
+  <img src="https://img.shields.io/badge/Models%20Evaluated-4-orange.svg" alt="Models Evaluated: 4">
+  <img src="https://img.shields.io/badge/Test%20Cases-1%2C500-brightgreen.svg" alt="Test Cases: 1,500">
+  <img src="https://img.shields.io/badge/Cognitive%20Biases-30-purple.svg" alt="Biases: 30">
+  <img src="https://img.shields.io/badge/EU%20AI%20Act-Aligned-blue.svg" alt="EU AI Act">
+  <a href="https://github.com/UltraDeep-Tech/lcb-bench"><img src="https://img.shields.io/github/stars/UltraDeep-Tech/lcb-bench?style=social" alt="GitHub Stars"></a>
+</p>
+
+<p align="center">
+  <em>Measuring how AI systems <b>think</b>, not just what they say.</em>
+</p>
+
+---
 
 LCB-Bench is an open-source evaluation framework for measuring **cognitive biases** in Large Language Model outputs. It provides 1,500 human-authored test cases across 30 cognitive biases organized in 7 categories, a Python evaluation harness, and a standardized LCB Score for cross-model comparison.
 
 Unlike existing benchmarks that focus on social and discrimination biases (BBQ, CrowS-Pairs, BOLD), LCB measures how AI systems *think*: anchoring on irrelevant numbers, succumbing to framing effects, exhibiting sunk cost reasoning, and more. These cognitive biases directly affect the quality of AI-generated advice, analysis, and decisions in high-stakes domains like medicine, law, and finance.
 
 **Paper:** *LCB: A 1,500-Case Benchmark for Measuring Cognitive Biases in Large Language Model Outputs* (Pilcer, 2026). Preprint forthcoming on arXiv. Target venue: AIES 2026.
+
+## Leaderboard
+
+Four frontier models evaluated on all 1,500 test cases (March 2026):
+
+| Rank | Model | Provider | LCB Score | Valid Scores | Strongest Category | Weakest Category |
+|:----:|-------|----------|:---------:|:------------:|-------------------|-----------------|
+| 1 | **GPT-4o** | OpenAI | **83.8** | 966/1,500 | Decision-Making (92.0) | Memory & Recall (62.4) |
+| 2 | GPT-4o-mini | OpenAI | **80.3** | 1,487/1,500 | Judgment & Estimation (90.3) | Memory & Recall (57.0) |
+| 3 | Gemini 2.5 Flash | Google | **77.2** | 1,324/1,500 | Decision-Making (89.0) | Memory & Recall (47.9) |
+| 4 | Claude Sonnet 4.6 | Anthropic | **69.0** | 1,479/1,500 | Decision-Making (81.7) | Memory & Recall (47.0) |
+
+**LCB Score** ranges 0 to 100. Higher scores indicate greater resistance to cognitive biases (less biased). A score of 100 means the model's outputs are completely unaffected by bias triggers.
+
+> Want to add your model? Run the harness and [open a PR](https://github.com/UltraDeep-Tech/lcb-bench/pulls) with the results JSON.
+
+### Key Findings
+
+1. **GPT-4o leads on bias resistance.** With an LCB of 83.8, GPT-4o shows the strongest overall resistance to cognitive bias triggers across all categories tested.
+2. **General capability does not predict bias resistance.** Claude Sonnet 4.6, widely considered more capable than GPT-4o-mini on standard benchmarks, scores 11.3 points lower on LCB.
+3. **Universal weaknesses exist.** All models score below 63 on Memory & Recall. Primacy and recency effects systematically influence outputs across all providers.
+4. **Universal strengths exist.** All models achieve near-perfect scores on Framing Effect (100.0) and Base Rate Neglect (100.0). Current RLHF training effectively mitigates explicit logical framing biases.
+5. **Bias profiles are model-specific.** Claude Sonnet is uniquely susceptible to Salience Bias (14.0 vs. 54+ for others). Gemini Flash is uniquely weak on Gambler's Fallacy (44.4 vs. 56+ for others).
 
 ## Taxonomy
 
@@ -22,25 +63,6 @@ LCB organizes 30 cognitive biases (from a full taxonomy of 72) into 7 categories
 | **Total** | **30** | **1,500** | |
 
 Each test case includes a **baseline** prompt (no bias trigger) and a **biased** prompt (with a specific cognitive bias trigger inserted). The LCB Score measures how much the model's output shifts between conditions.
-
-## Results
-
-Three frontier models fully evaluated on all 1,500 test cases (March 2026):
-
-| Model | Provider | LCB Score | Valid Scores | Strongest Category | Weakest Category |
-|-------|----------|-----------|--------------|-------------------|-----------------|
-| GPT-4o-mini | OpenAI | **80.3** | 1,487/1,500 | Judgment & Estimation (90.3) | Memory & Recall (57.0) |
-| Gemini 2.5 Flash | Google | **77.1** | 1,388/1,500 | Decision-Making (89.7) | Memory & Recall (47.9) |
-| Claude Sonnet 4.6 | Anthropic | **69.0** | 1,479/1,500 | Decision-Making (81.7) | Memory & Recall (47.0) |
-
-**LCB Score** ranges 0 to 100. Higher scores indicate greater resistance to cognitive biases (less biased). A score of 100 means the model's outputs are completely unaffected by bias triggers.
-
-### Key Findings
-
-1. **General capability does not predict bias resistance.** Claude Sonnet 4.6, widely considered more capable than GPT-4o-mini on standard benchmarks, scores 11.3 points lower on LCB.
-2. **Universal weaknesses exist.** All models score below 60 on Memory & Recall. Primacy and recency effects systematically influence outputs across all providers.
-3. **Universal strengths exist.** All models achieve near-perfect scores on Framing Effect (100.0) and Base Rate Neglect (100.0). Current RLHF training effectively mitigates explicit logical framing biases.
-4. **Bias profiles are model-specific.** Claude Sonnet is uniquely susceptible to Salience Bias (14.0 vs. 54+ for others). Gemini Flash is uniquely weak on Gambler's Fallacy (44.4 vs. 56+ for others).
 
 ## Quick Start
 

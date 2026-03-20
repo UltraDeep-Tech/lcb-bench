@@ -1,15 +1,15 @@
 # LCB: A 1,500-Case Benchmark for Measuring Cognitive Biases in Large Language Model Outputs
 
-**Status:** DRAFT — Cross-model results complete (March 18, 2026)
-**Results section:** Three-model evaluation complete (GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6)
-**Target venue:** arXiv preprint, then ACL/EMNLP/AIES/FAccT submission
+**Status:** v1.1, four-model evaluation complete (March 20, 2026)
+**Results section:** All four models evaluated (GPT-4o, GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6)
+**Target venue:** arXiv preprint, then AIES 2026 (deadline May 21, 2026)
 **Author:** Avi Pilcer, Ultra Deep Tech (avi@ultradeep.tech)
 
 ---
 
 ## Abstract
 
-Large Language Models (LLMs) are increasingly deployed in high-stakes decision-making contexts, from medical diagnosis support to legal reasoning to financial advice. While the research community has developed extensive benchmarks for factual accuracy, coding ability, and social bias, no comprehensive benchmark exists for measuring *cognitive biases*: the systematic errors in judgment, reasoning, and decision-making that affect the quality of AI-generated outputs. We introduce LCB (LLM Cognitive Bias Benchmark), an open-source evaluation framework measuring 30 cognitive biases across 1,500 test cases in the initial release, spanning seven bias categories: judgment and estimation, decision-making, memory and recall, probability and statistical reasoning, information processing, social cognition, and LLM-specific biases. LCB produces a standardized LCB Score enabling cross-model comparison. We evaluate three frontier models (GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6) and demonstrate that cognitive biases are pervasive, measurable, and model-specific. LCB Scores range from 69.0 to 80.3/100, with per-bias susceptibility rates spanning 0% to 86%. All three models show near-zero susceptibility to framing and base rate neglect, yet all three exhibit systematic vulnerability to memory/recall biases (positional effects) and social cognition biases (attribution errors). Critically, models that rank higher on general capability benchmarks do not necessarily exhibit lower cognitive bias: Claude Sonnet 4.6, a larger and more capable model, scores 11 points lower than GPT-4o-mini. LCB addresses a critical gap in AI evaluation infrastructure as regulatory frameworks including the EU AI Act begin to require documentation of systematic reasoning failures in high-risk AI systems.
+Large Language Models (LLMs) are increasingly deployed in high-stakes decision-making contexts, from medical diagnosis support to legal reasoning to financial advice. While the research community has developed extensive benchmarks for factual accuracy, coding ability, and social bias, no comprehensive benchmark exists for measuring *cognitive biases*: the systematic errors in judgment, reasoning, and decision-making that affect the quality of AI-generated outputs. We introduce LCB (LLM Cognitive Bias Benchmark), an open-source evaluation framework measuring 30 cognitive biases across 1,500 test cases in the initial release, spanning seven bias categories: judgment and estimation, decision-making, memory and recall, probability and statistical reasoning, information processing, social cognition, and LLM-specific biases. LCB produces a standardized LCB Score enabling cross-model comparison. We evaluate four frontier models spanning three providers (GPT-4o, GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6) and demonstrate that cognitive biases are pervasive, measurable, and model-specific. LCB Scores range from 69.0 to 83.8/100 across the four models evaluated, with per-bias susceptibility rates spanning 0% to 86%. All models show near-zero susceptibility to framing and base rate neglect, yet all exhibit systematic vulnerability to memory/recall biases (positional effects) and social cognition biases (attribution errors). Critically, models that rank higher on general capability benchmarks do not necessarily exhibit lower cognitive bias: Claude Sonnet 4.6, a larger and more capable model, scores 14.8 points lower than GPT-4o. GPT-4o achieves the highest overall LCB Score (83.8) despite exhibiting significant evaluation instability, with 515 of 1,500 cases producing errors concentrated in the probability/statistical and social cognition categories. LCB addresses a critical gap in AI evaluation infrastructure as regulatory frameworks including the EU AI Act begin to require documentation of systematic reasoning failures in high-risk AI systems.
 
 ---
 
@@ -26,7 +26,7 @@ We present LCB, an open-source benchmark addressing this gap with 1,500 test cas
 1. **A comprehensive taxonomy** of 30 measurable cognitive biases for LLMs (Phase 1), drawn from the cognitive psychology literature and validated against LLM behavior patterns.
 2. **A structured test set** of 1,500 paired baseline/biased test cases with human-authored prompts and principled scoring criteria.
 3. **A standardized evaluation harness** enabling reproducible cross-model evaluation with a single command.
-4. **Cross-model evaluation results** for three frontier models (GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6), demonstrating that cognitive bias susceptibility ranges from 0% to 86% across bias types, with LCB Scores of 80.3, 77.2, and 69.0 respectively.
+4. **Cross-model evaluation results** for four frontier models (GPT-4o, GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6), demonstrating that cognitive bias susceptibility ranges from 0% to 86% across bias types, with LCB Scores ranging from 69.0 to 83.8.
 5. **The LCB Score**, a composite metric enabling direct cross-model comparison on cognitive bias susceptibility, revealing that general capability does not predict bias resistance.
 
 We release all test cases, evaluation harness, and results under open-source licenses to enable reproducible research and community contribution.
@@ -338,7 +338,7 @@ Each evaluation run produces:
 Result files are versioned and archived at `lcb-bench/results/`. All results published in this paper are reproducible by running:
 
 ```bash
-cd lcb-bench
+cd modules/lcb-bench
 python3 -m harness run --model <model_id> --set public
 ```
 
@@ -348,98 +348,111 @@ python3 -m harness run --model <model_id> --set public
 
 ### 7.1 Models Evaluated
 
-We evaluate three frontier models spanning three major providers to establish cross-model comparison on LCB.
+We evaluate four frontier models spanning three major providers to establish cross-model comparison on LCB. The model set includes two size variants from OpenAI (GPT-4o and GPT-4o-mini) to enable within-family scaling analysis.
 
 | Model | Provider | Type | Evaluation Method |
 |-------|----------|------|-------------------|
+| GPT-4o | OpenAI | Full-size | OpenAI API, temperature=default |
 | GPT-4o-mini | OpenAI | Small/efficient | OpenAI API, temperature=default |
 | Gemini 2.5 Flash | Google DeepMind | Small/efficient | Vertex AI API, thinking disabled |
 | Claude Sonnet 4.6 | Anthropic | Mid-range | Claude Code CLI, default settings |
 
-Evaluation used the LLM-as-judge paradigm for free-text response classification, consistent with standard practice in MT-Bench, AlpacaEval, and WildBench. Gemini 2.5 Flash served as the judge model for all three evaluations. All 1,500 test cases were evaluated per model.
+Evaluation used the LLM-as-judge paradigm for free-text response classification, consistent with standard practice in MT-Bench, AlpacaEval, and WildBench. Gemini 2.5 Flash served as the judge model for all evaluations. All 1,500 test cases were evaluated per model. GPT-4o evaluation completed all 1,500 cases, though 515 cases (34.3%) produced errors concentrated in the probability/statistical reasoning and social cognition categories, yielding scoreable results for 966 cases. This error pattern is itself informative, as discussed in Section 7.5.
 
 ### 7.2 Overall LCB Scores
 
-| Metric | GPT-4o-mini | Gemini 2.5 Flash | Claude Sonnet 4.6 |
-|--------|-------------|------------------|-------------------|
-| **LCB Score** | **80.3/100** | **77.2/100** | **69.0/100** |
-| Total test cases | 1,500 | 1,500 | 1,500 |
-| Valid scores | 1,487 (99.1%) | 1,324 (88.3%) | 1,479 (98.6%) |
-| No data | 13 | 113 | 19 |
-| Errors | 0 | 63 | 2 |
+| Metric | GPT-4o | GPT-4o-mini | Gemini 2.5 Flash | Claude Sonnet 4.6 |
+|--------|--------|-------------|------------------|-------------------|
+| **LCB Score** | **83.8** | **80.3** | **77.2** | **69.0** |
+| Total test cases | 1,500 | 1,500 | 1,500 | 1,500 |
+| Scored cases | 966 (64.4%) | 1,487 (99.1%) | 1,324 (88.3%) | 1,479 (98.6%) |
+| No data | 19 | 13 | 113 | 19 |
+| Errors | 515 | 0 | 63 | 2 |
 
-GPT-4o-mini achieves the highest LCB Score (80.3), followed by Gemini 2.5 Flash (77.2) and Claude Sonnet 4.6 (69.0). The 11.3-point spread between the best and worst performers is substantial, demonstrating that LCB discriminates meaningfully between models. Notably, general capability rankings (where Claude Sonnet 4.6 is broadly considered more capable than GPT-4o-mini) do not predict cognitive bias resistance.
+GPT-4o achieves the highest LCB Score (83.8), followed by GPT-4o-mini (80.3), Gemini 2.5 Flash (77.2), and Claude Sonnet 4.6 (69.0). The 14.8-point spread between the best and worst performers is substantial, demonstrating that LCB discriminates meaningfully between models. General capability rankings (where Claude Sonnet 4.6 is broadly considered more capable than GPT-4o-mini) do not predict cognitive bias resistance.
+
+An important caveat applies to the GPT-4o results. While GPT-4o achieves the highest overall score, its evaluation produced errors on 515 of 1,500 cases (34.3%), concentrated entirely in the probability/statistical reasoning and social cognition categories. All six probability/statistical biases and all four social cognition biases returned errors on every case (50 errors per bias). Consequently, GPT-4o's LCB Score of 83.8 reflects performance on only the five categories that produced valid results: decision-making, information processing, judgment and estimation, LLM-specific biases, and memory and recall. This partial coverage limits direct comparability with the other three models, which achieved 88.3% to 99.1% scoreable case rates across all seven categories.
 
 ### 7.3 Category-Level Analysis
 
 Bias susceptibility varies significantly across the seven taxonomy categories. The table below shows LCB sub-scores per category per model (higher = less biased).
 
-| Category | GPT-4o-mini | Gemini 2.5 Flash | Claude Sonnet 4.6 |
-|----------|-------------|------------------|-------------------|
-| Decision-Making (400 cases) | 86.8 | 89.0 | 81.7 |
-| Judgment & Estimation (250) | 90.3 | 83.8 | 76.5 |
-| LLM-Specific (150) | 81.3 | 77.7 | 70.0 |
-| Information Processing (100) | 77.0 | 72.2 | 57.0 |
-| Probability & Statistical (300) | 71.7 | 72.7 | 59.6 |
-| Social Cognition (200) | 81.0 | 69.9 | 64.5 |
-| Memory & Recall (100) | 57.0 | 47.9 | 47.0 |
+| Category | GPT-4o | GPT-4o-mini | Gemini 2.5 Flash | Claude Sonnet 4.6 |
+|----------|--------|-------------|------------------|-------------------|
+| Decision-Making (400 cases) | **92.0** | 86.8 | 89.0 | 81.7 |
+| Judgment & Estimation (250) | 82.9 | **90.3** | 83.8 | 76.5 |
+| LLM-Specific (150) | 78.7 | **81.3** | 77.7 | 70.0 |
+| Information Processing (100) | **79.0** | 77.0 | 72.2 | 57.0 |
+| Probability & Statistical (300) | n/a | **71.7** | 72.7 | 59.6 |
+| Social Cognition (200) | n/a | **81.0** | 69.9 | 64.5 |
+| Memory & Recall (100) | **62.4** | 57.0 | 47.9 | 47.0 |
 
-**Decision-Making** is the strongest category across all three models (81.7 to 89.0), suggesting RLHF training effectively mitigates explicit choice-framing manipulations regardless of provider.
+*GPT-4o probability/statistical and social cognition categories produced all-error results (see Section 7.2) and are marked n/a.*
 
-**Memory and Recall** is the weakest category for all three models (47.0 to 57.0), meaning positional effects (primacy and recency) systematically influence model outputs across providers. This has direct implications for retrieval-augmented generation (RAG) systems.
+**Decision-Making** is the strongest category across all models with valid data (81.7 to 92.0), suggesting RLHF training effectively mitigates explicit choice-framing manipulations regardless of provider. GPT-4o leads this category at 92.0, the highest single-category score recorded.
 
-**Information Processing** shows the widest inter-model spread (20 points), with Claude Sonnet scoring 57.0 compared to GPT-4o-mini's 77.0. Claude Sonnet's extreme vulnerability to Salience Bias (14.0/100) drives this gap.
+**Memory and Recall** is the weakest category for all models (47.0 to 62.4), meaning positional effects (primacy and recency) systematically influence model outputs across providers. GPT-4o performs best in this category at 62.4, yet this remains the weakest category in its own profile. This has direct implications for retrieval-augmented generation (RAG) systems, where document ordering can systematically bias model outputs.
+
+**Information Processing** shows a 22-point spread, with Claude Sonnet scoring 57.0 compared to GPT-4o's 79.0. Claude Sonnet's extreme vulnerability to Salience Bias (14.0/100) drives this gap.
+
+**Judgment and Estimation** reveals an interesting scaling inversion within the OpenAI family: GPT-4o-mini (90.3) outperforms GPT-4o (82.9) by 7.4 points, driven primarily by GPT-4o's weaker performance on Anchoring (54.7 vs. 89.2) and Dunning-Kruger Effect (68.0 vs. 98.0).
 
 ### 7.4 Per-Bias Cross-Model Comparison
 
-Table 2 presents per-bias LCB scores for all three models, sorted by average score (most susceptible biases first).
+Table 2 presents per-bias LCB scores for all four models, sorted by average score across models with valid data (most susceptible biases first). Bold values indicate the lowest score for each bias. GPT-4o produced all-error results for probability/statistical and social cognition biases (marked n/a).
 
-| Bias | Category | GPT-4o-mini | Gemini Flash | Claude Sonnet |
-|------|----------|-------------|--------------|---------------|
-| Salience Bias | Info Processing | 54.0 | 58.0 | **14.0** |
-| Fundamental Attribution Error | Social Cognition | 54.0 | **34.7** | 22.0 |
-| Hot Hand Fallacy | Probability/Stats | 62.0 | 48.9 | **30.0** |
-| Availability Heuristic | Probability/Stats | 54.0 | 75.0 | **38.0** |
-| Primacy Effect | Memory/Recall | 56.0 | 46.8 | **48.0** |
-| Recency Effect | Memory/Recall | 58.0 | 48.9 | **46.0** |
-| Gambler's Fallacy | Probability/Stats | 72.0 | **44.4** | 52.0 |
-| Sycophancy | LLM-Specific | 74.0 | 65.9 | **54.0** |
-| Anchoring | Judgment/Estimation | 68.0 | 76.1 | **60.0** |
-| Position Bias | LLM-Specific | 80.0 | 82.2 | **60.0** |
-| Overconfidence | Judgment/Estimation | 82.0 | 76.7 | **60.0** |
-| Bandwagon Effect | Social Cognition | 82.0 | 80.9 | **66.0** |
-| Halo Effect | Social Cognition | 84.0 | 80.0 | 70.0 |
-| Authority Bias | Social Cognition | **76.0** | 85.1 | 86.0 |
-| Zero-Risk Bias | Decision-Making | 86.0 | 84.4 | 80.0 |
-| Sunk Cost Fallacy | Decision-Making | 76.0 | 73.5 | 82.0 |
-| Focalism | Judgment/Estimation | 92.0 | 85.4 | 72.0 |
-| Planning Fallacy | Decision-Making | 92.0 | 87.2 | 84.0 |
-| Dunning-Kruger Effect | Judgment/Estimation | 98.0 | 90.9 | 78.0 |
-| Status Quo Bias | Decision-Making | 82.0 | 90.2 | 76.0 |
-| Omission Bias | Decision-Making | 82.0 | 87.8 | 80.0 |
-| Loss Aversion | Decision-Making | 82.0 | 95.7 | 74.0 |
-| Conjunction Fallacy | Probability/Stats | 70.0 | 100.0 | 76.0 |
-| Verbosity Bias | LLM-Specific | 90.0 | 84.0 | 96.0 |
-| Insensitivity to Sample Size | Probability/Stats | 86.0 | 89.1 | 94.0 |
-| Insufficient Adjustment | Judgment/Estimation | 98.0 | 97.8 | 86.0 |
-| Confirmation Bias | Decision-Making | 100.0 | 98.0 | 88.0 |
-| Framing Effect | Decision-Making | 100.0 | 100.0 | 100.0 |
-| Conservatism Bias | Info Processing | 100.0 | 90.0 | 100.0 |
-| Base Rate Neglect | Probability/Stats | 100.0 | 100.0 | 100.0 |
+| Bias | Category | GPT-4o | GPT-4o-mini | Gemini Flash | Claude Sonnet |
+|------|----------|--------|-------------|--------------|---------------|
+| Salience Bias | Info Processing | 58.0 | 54.0 | 58.0 | **14.0** |
+| Fundamental Attribution Error | Social Cognition | n/a | 54.0 | **34.7** | 22.0 |
+| Hot Hand Fallacy | Probability/Stats | n/a | 66.0 | 48.9 | **30.0** |
+| Availability Heuristic | Probability/Stats | n/a | 54.0 | 75.0 | **38.0** |
+| Gambler's Fallacy | Probability/Stats | n/a | 60.0 | **44.4** | 56.0 |
+| Sycophancy | LLM-Specific | **50.0** | 68.0 | 65.9 | 58.0 |
+| Conjunction Fallacy | Probability/Stats | n/a | 66.0 | 64.4 | **50.0** |
+| Primacy Effect | Memory/Recall | **58.0** | 56.0 | 46.8 | 48.0 |
+| Recency Effect | Memory/Recall | 68.6 | 58.0 | 48.9 | **46.0** |
+| Anchoring | Judgment/Estimation | **54.7** | 89.2 | 68.5 | 81.8 |
+| Position Bias | LLM-Specific | 92.0 | 82.0 | 82.2 | **56.0** |
+| Sunk Cost Fallacy | Decision-Making | **60.0** | 90.0 | 73.5 | 60.0 |
+| Zero-Risk Bias | Decision-Making | 96.0 | **66.0** | 84.4 | 86.0 |
+| Bandwagon Effect | Social Cognition | n/a | 94.0 | 80.9 | **68.0** |
+| Dunning-Kruger Effect | Judgment/Estimation | **68.0** | 98.0 | 90.9 | 77.6 |
+| Overconfidence | Judgment/Estimation | 86.0 | 76.0 | 76.7 | **70.0** |
+| Planning Fallacy | Decision-Making | 84.0 | **70.0** | 87.2 | 87.8 |
+| Focalism | Judgment/Estimation | 95.9 | 90.0 | 85.4 | **82.0** |
+| Halo Effect | Social Cognition | n/a | 84.0 | **80.0** | 86.0 |
+| Authority Bias | Social Cognition | n/a | 92.0 | **85.1** | 82.0 |
+| Status Quo Bias | Decision-Making | 100.0 | 92.0 | 90.2 | **66.0** |
+| Omission Bias | Decision-Making | 96.0 | 82.0 | 87.8 | **78.0** |
+| Loss Aversion | Decision-Making | 100.0 | 94.0 | 95.7 | **90.0** |
+| Verbosity Bias | LLM-Specific | 94.0 | **94.0** | 84.0 | 96.0 |
+| Insensitivity to Sample Size | Probability/Stats | n/a | **84.0** | 89.1 | 94.0 |
+| Insufficient Adjustment | Judgment/Estimation | 100.0 | 98.0 | 97.8 | **72.0** |
+| Confirmation Bias | Decision-Making | 100.0 | 100.0 | 98.0 | **86.0** |
+| Conservatism Bias | Info Processing | 100.0 | 100.0 | **90.0** | 100.0 |
+| Framing Effect | Decision-Making | 100.0 | 100.0 | 100.0 | 100.0 |
+| Base Rate Neglect | Probability/Stats | n/a | 100.0 | 100.0 | 100.0 |
+
+*GPT-4o produced all-error results for probability/statistical and social cognition biases (10 biases, 500 cases). These are marked n/a.*
 
 ### 7.5 Notable Findings
 
-**Finding 1: General capability does not predict bias resistance.** Claude Sonnet 4.6, widely considered more capable than GPT-4o-mini on general benchmarks (MMLU, HumanEval, reasoning tasks), scores 11.3 points lower on LCB. This demonstrates that cognitive bias susceptibility is orthogonal to general intelligence and should be evaluated independently.
+**Finding 1: General capability does not predict bias resistance.** Claude Sonnet 4.6, widely considered more capable than GPT-4o-mini on general benchmarks (MMLU, HumanEval, reasoning tasks), scores 11.3 points lower on LCB (69.0 vs. 80.3). Even comparing against GPT-4o, which achieves the highest LCB Score (83.8), the 14.8-point gap with Claude Sonnet reinforces that cognitive bias susceptibility is orthogonal to general intelligence and should be evaluated independently.
 
-**Finding 2: Universal weaknesses exist across all providers.** All three models score below 60/100 on Memory and Recall. Primacy Effect (46.8 to 56.0) and Recency Effect (46.0 to 58.0) are universal vulnerabilities. Fundamental Attribution Error is a universal weakness (22.0 to 54.0). No model has solved positional bias or social attribution bias.
+**Finding 2: Universal weaknesses exist across all providers.** All four models score below 63/100 on Memory and Recall, making it the weakest category for every model evaluated. Primacy Effect scores range from 46.8 to 58.0 and Recency Effect scores range from 46.0 to 68.6, reflecting universal positional vulnerabilities. Among models with valid social cognition data, Fundamental Attribution Error remains a universal weakness (22.0 to 54.0). No model has solved positional bias or social attribution bias.
 
-**Finding 3: Universal strengths also exist.** All three models achieve near-perfect scores on Framing Effect (100.0 across the board), Base Rate Neglect (100.0 across the board), and Insufficient Adjustment (86.0 to 98.0). RLHF alignment training has been effective for biases involving explicit logical framing, regardless of provider.
+**Finding 3: Universal strengths also exist.** All four models achieve perfect scores on Framing Effect (100.0 across the board). All three models with valid probability/statistical data achieve 100.0 on Base Rate Neglect. Conservatism Bias scores range from 90.0 to 100.0 across all models. RLHF alignment training has been effective for biases involving explicit logical framing, regardless of provider.
 
-**Finding 4: Bias profiles are model-specific.** Each model has a unique vulnerability signature. Claude Sonnet is uniquely susceptible to Salience Bias (14.0 vs. 54.0 and 58.0). Gemini Flash is uniquely susceptible to Gambler's Fallacy (44.4 vs. 52.0 and 72.0). GPT-4o-mini shows no single catastrophic weakness but performs worse on Authority Bias (76.0 vs. 85.1 and 86.0). These model-specific profiles suggest that different RLHF training data and procedures produce different cognitive bias vulnerabilities.
+**Finding 4: Bias profiles are model-specific.** Each model has a unique vulnerability signature. Claude Sonnet is uniquely susceptible to Salience Bias (14.0 vs. 54.0 to 58.0 for other models). Gemini Flash is uniquely susceptible to Gambler's Fallacy (44.4 vs. 56.0 and 60.0). GPT-4o-mini shows no single catastrophic weakness but is the most vulnerable to Zero-Risk Bias (66.0 vs. 84.4 to 96.0). GPT-4o exhibits pronounced weaknesses on Anchoring (54.7 vs. 68.5 to 89.2), Sycophancy (50.0 vs. 58.0 to 68.0), and Dunning-Kruger Effect (68.0 vs. 77.6 to 98.0). These model-specific profiles suggest that different RLHF training data and procedures produce different cognitive bias vulnerabilities.
 
-**Finding 5: Smaller models can outperform larger ones.** GPT-4o-mini, the smallest model in our evaluation, achieves the highest LCB Score. This suggests that model scale interacts non-trivially with cognitive bias: larger models may absorb more training data biases, or RLHF may be more effective at smaller scales where the optimization landscape is simpler. This finding warrants further investigation with controlled model families (same architecture, different scales).
+**Finding 5: Scaling effects are non-trivial.** Within the OpenAI family, GPT-4o achieves a higher overall LCB Score than GPT-4o-mini (83.8 vs. 80.3), suggesting that scaling benefits aggregate bias resistance. Yet the per-bias picture is far more complex: GPT-4o scores 34.5 points lower than GPT-4o-mini on Anchoring, 30 points lower on Dunning-Kruger, and 18 points lower on Sycophancy, while simultaneously scoring 30 points higher on Zero-Risk Bias and 5.2 points higher on Decision-Making as a category. Scaling within a model family does not uniformly improve or degrade cognitive bias resistance; it shifts the vulnerability profile in ways that are currently unpredictable.
 
-**Finding 6: The bias gap between best and worst is large.** On Salience Bias, the spread between best (58.0, Gemini) and worst (14.0, Claude) is 44 points. On Fundamental Attribution Error, the spread is 32 points (54.0 GPT vs. 22.0 Claude). These gaps exceed typical inter-model differences on general benchmarks, suggesting cognitive bias evaluation surfaces model differences that are invisible on standard evaluations.
+**Finding 6: The bias gap between best and worst is large.** On Salience Bias, the spread between best (58.0, Gemini Flash and GPT-4o) and worst (14.0, Claude Sonnet) is 44 points. On Anchoring, the spread reaches 34.5 points (89.2 GPT-4o-mini vs. 54.7 GPT-4o). On Status Quo Bias, the spread is 34 points (100.0 GPT-4o vs. 66.0 Claude Sonnet). These gaps exceed typical inter-model differences on general benchmarks, suggesting cognitive bias evaluation surfaces model differences that are invisible on standard evaluations.
+
+**Finding 7: Within-family divergence.** GPT-4o and GPT-4o-mini, despite sharing the same provider and training methodology, show large divergences on specific biases. GPT-4o scores 34.5 points lower than GPT-4o-mini on Anchoring, 30 points lower on Dunning-Kruger, 18 points lower on Sycophancy, and 30 points higher on Zero-Risk Bias. At the category level, GPT-4o leads on Decision-Making (92.0 vs. 86.8) and Memory and Recall (62.4 vs. 57.0), while GPT-4o-mini leads on Judgment and Estimation (90.3 vs. 82.9). This indicates that model distillation and scaling interact with cognitive bias susceptibility in ways that are currently unpredictable and warrant systematic investigation.
+
+**Finding 8: Evaluation stability varies by model.** GPT-4o's 34.3% error rate (515 of 1,500 cases) contrasts sharply with GPT-4o-mini's 0% error rate, Gemini Flash's 4.2% rate, and Claude Sonnet's 0.1% rate. The errors were concentrated in two specific categories (probability/statistical reasoning and social cognition), suggesting either systematic incompatibility between GPT-4o's response format and the judge model's parsing expectations, or a tendency for GPT-4o to produce responses that resist structured evaluation. This observation itself is informative: models that generate less predictably structured outputs may require category-specific evaluation adaptations, and evaluation stability should be reported alongside bias scores.
 
 ---
 
@@ -447,11 +460,11 @@ Table 2 presents per-bias LCB scores for all three models, sorted by average sco
 
 ### 8.1 Implications for Model Evaluation
 
-Our cross-model results demonstrate two critical properties of cognitive bias in LLMs. First, cognitive bias susceptibility is highly variable *within* a single model: all three models show near-zero susceptibility to framing effects and base rate neglect while simultaneously exhibiting >40% bias rates on positional effects and attribution tasks. Second, cognitive bias susceptibility varies *between* models in ways that do not correlate with general capability rankings: GPT-4o-mini outperforms Claude Sonnet 4.6 by 11.3 points despite being a smaller, less capable model on standard benchmarks.
+Our cross-model results demonstrate three critical properties of cognitive bias in LLMs. First, cognitive bias susceptibility is highly variable *within* a single model: all models show near-zero susceptibility to framing effects while simultaneously exhibiting greater than 40% bias rates on positional effects and attribution tasks. Second, cognitive bias susceptibility varies *between* models in ways that do not correlate with general capability rankings: GPT-4o achieves the highest LCB Score (83.8) while Claude Sonnet 4.6, a model broadly considered more capable on general benchmarks, scores 14.8 points lower (69.0). Third, even within the same model family (GPT-4o vs. GPT-4o-mini), cognitive bias profiles diverge substantially: the two OpenAI models show 34.5-point disagreements on specific biases like Anchoring, suggesting that model distillation fundamentally alters the cognitive bias landscape rather than simply scaling it.
 
-These two properties together argue strongly that cognitive bias evaluation provides orthogonal signal to existing benchmarks and should be included in standard model evaluation suites. A model card reporting MMLU and HumanEval scores without LCB-style cognitive bias measurement is providing an incomplete picture of model reliability.
+These properties together argue strongly that cognitive bias evaluation provides orthogonal signal to existing benchmarks and should be included in standard model evaluation suites. A model card reporting MMLU and HumanEval scores without LCB-style cognitive bias measurement is providing an incomplete picture of model reliability. Furthermore, the within-family divergence suggests that each model variant requires independent LCB evaluation; bias profiles cannot be inferred from a base model evaluation.
 
-The finding that RLHF training has effectively mitigated some biases across all providers (framing, base rate neglect, confirmation bias) while leaving others largely unaddressed (primacy/recency, attribution error) suggests that current alignment techniques target biases that are easy to specify in human preference comparisons but miss biases that are subtler or harder to articulate as preferences. The fact that these patterns hold across three independent RLHF pipelines (OpenAI, Google, Anthropic) strengthens this interpretation.
+The finding that RLHF training has effectively mitigated some biases across all providers (framing, base rate neglect, conservatism bias) while leaving others largely unaddressed (primacy/recency, attribution error) suggests that current alignment techniques target biases that are easy to specify in human preference comparisons but miss biases that are subtler or harder to articulate as preferences. The fact that these patterns hold across four models from three independent RLHF pipelines (OpenAI, Google, Anthropic) strengthens this interpretation.
 
 ### 8.2 Regulatory Relevance
 
@@ -459,19 +472,22 @@ The EU AI Act's Article 5 prohibition on "subliminal techniques beyond a person'
 
 ### 8.3 Limitations
 
-1. **LLM-as-judge methodology:** For free-text response classification, we use Gemini 2.5 Flash as the judge model for all three evaluations. While using an external judge avoids self-evaluation bias, it may introduce systematic classification preferences favoring or penalizing certain response styles. We achieve 88.3% to 99.1% extraction success rates across models. Future work will validate judge agreement against human annotations on a stratified sample and test sensitivity to judge model choice.
+1. **LLM-as-judge methodology:** For free-text response classification, we use Gemini 2.5 Flash as the judge model for all evaluations. While using an external judge avoids self-evaluation bias, it may introduce systematic classification preferences favoring or penalizing certain response styles. Scoreable case rates range from 64.4% (GPT-4o) to 99.1% (GPT-4o-mini). Future work will validate judge agreement against human annotations on a stratified sample and test sensitivity to judge model choice.
 2. **Human authoring bottleneck:** Human-authored test cases are higher quality but slower to produce than generated ones. Phase 1 represents 6 weeks of authoring effort for 1,500 cases.
-2. **LLM-specific taxonomy:** The LLM-specific bias category (sycophancy, position bias, verbosity bias) is novel and lacks the decades of human cognitive psychology literature supporting the other categories. Scoring methodologies for these biases are less mature.
-3. **API variability:** LLM API responses vary with temperature, model version, and prompt formatting. All reported results use temperature=0 for reproducibility, but production deployments may exhibit different bias patterns at higher temperatures.
-4. **Coverage:** 30 biases represents approximately 20% of the documented cognitive bias taxonomy. Phase 2 will expand to 70+ biases.
+3. **LLM-specific taxonomy:** The LLM-specific bias category (sycophancy, position bias, verbosity bias) is novel and lacks the decades of human cognitive psychology literature supporting the other categories. Scoring methodologies for these biases are less mature.
+4. **API variability:** LLM API responses vary with temperature, model version, and prompt formatting. All reported results use default temperature settings for reproducibility, but production deployments may exhibit different bias patterns at higher temperatures.
+5. **Coverage:** 30 biases represents approximately 20% of the documented cognitive bias taxonomy. Phase 2 will expand to 70+ biases.
+6. **GPT-4o evaluation coverage:** GPT-4o's evaluation produced errors on 515 of 1,500 cases (34.3%), concentrated entirely in the probability/statistical reasoning and social cognition categories (10 biases, 500 cases with all-error results). Consequently, GPT-4o's LCB Score reflects performance on five of seven categories. Comparisons between GPT-4o and other models should account for this difference in category coverage. Rerunning GPT-4o evaluation with adjusted prompting or alternative judge configurations may recover the missing categories.
 
 ---
 
 ## 9. Conclusion
 
-We introduce LCB, the first comprehensive benchmark for measuring cognitive biases in Large Language Model outputs. LCB provides 1,500 human-authored test cases across 30 biases, a standardized evaluation harness, and a composite LCB Score enabling cross-model comparison. Our evaluation of three frontier models (GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6) demonstrates that cognitive bias susceptibility is pervasive (LCB Scores 69.0 to 80.3), highly variable across bias types (0% to 86%), model-specific in its profile, and orthogonal to general capability metrics.
+We introduce LCB, the first comprehensive benchmark for measuring cognitive biases in Large Language Model outputs. LCB provides 1,500 human-authored test cases across 30 biases, a standardized evaluation harness, and a composite LCB Score enabling cross-model comparison. Our evaluation of four frontier models across three providers (GPT-4o, GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6) demonstrates that cognitive bias susceptibility is pervasive (LCB Scores ranging from 69.0 to 83.8), highly variable across bias types (0% to 86%), model-specific in its profile, and orthogonal to general capability metrics.
 
-The finding that a smaller model (GPT-4o-mini) outperforms a larger model (Claude Sonnet 4.6) on cognitive bias resistance by 11.3 points challenges the assumption that scaling model capability reduces reasoning errors. As LLMs are deployed in increasingly high-stakes contexts, and as regulatory frameworks begin mandating documentation of systematic AI behavior, cognitive bias measurement becomes a necessary component of responsible AI evaluation. We release LCB as open-source infrastructure to accelerate this work.
+Three findings stand out. First, GPT-4o achieves the highest LCB Score (83.8) while Claude Sonnet 4.6, a model broadly considered more capable on general benchmarks, scores 14.8 points lower (69.0), challenging the assumption that greater general capability reduces reasoning errors. Second, models within the same family (GPT-4o vs. GPT-4o-mini) show divergent cognitive bias profiles, with 34.5-point disagreements on specific biases like Anchoring, indicating that model distillation and scaling alter bias vulnerability in unpredictable ways. Third, certain biases (framing, base rate neglect, conservatism) have been universally mitigated by current RLHF training across all providers, while others (positional effects, attribution errors) remain universally unaddressed, suggesting a structural gap in how alignment training interacts with cognitive reasoning.
+
+As LLMs are deployed in increasingly high-stakes contexts, and as regulatory frameworks begin mandating documentation of systematic AI behavior, cognitive bias measurement becomes a necessary component of responsible AI evaluation. We release LCB as open-source infrastructure to accelerate this work.
 
 ---
 
@@ -525,9 +541,22 @@ The finding that a smaller model (GPT-4o-mini) outperforms a larger model (Claud
 
 ## Appendix B: Scoring Methodologies by Bias Type
 
-*[Full scoring specifications for all 30 biases — to be added.]*
+LCB uses eight primary scoring methods, each selected for the measurement properties of the bias it evaluates. All methods produce a raw score (0.0 to 1.0) and a verdict (pass/partial/fail) based on configurable thresholds. The default pass threshold is 0.2 (score <= 0.2 = pass) and fail threshold is 0.5 (score >= 0.5 = fail).
+
+| Scoring Method | Biases Using It | Output Type | Description |
+|----------------|----------------|-------------|-------------|
+| Anchor Pull Index | Anchoring, Insufficient Adjustment, Focalism | Numeric | `API = \|biased - baseline\| / \|anchor - baseline\|`. Measures pull toward irrelevant anchor. |
+| Decision Consistency | Framing Effect, Status Quo Bias, Sunk Cost Fallacy, Position Bias, Primacy/Recency | Categorical | Binary: 0 if baseline and biased responses match, 1 if they differ. |
+| Probability Accuracy | Gambler's Fallacy, Conjunction Fallacy, Insensitivity to Sample Size, Base Rate Neglect | Numeric | Deviation from correct probability: `\|biased_estimate - expected\|`. |
+| Bayesian Calibration | Conservatism Bias, Base Rate Neglect | Numeric | Deviation from Bayesian posterior given stated priors and likelihoods. |
+| Loss Aversion Coefficient | Loss Aversion | Numeric/Cat | Asymmetry between gain-framed and loss-framed decision responses. |
+| Evidence Balance Ratio | Confirmation Bias | Free text | Keyword ratio of confirming vs. disconfirming evidence in response. |
+| Attribution Coding | Fundamental Attribution Error | Free text | Keyword ratio of dispositional vs. situational attribution language. |
+| Binary Choice | Zero-Risk Bias, Omission Bias, Sycophancy | Categorical | Whether biased condition flips a binary recommendation/decision. |
+
+Free-text scoring methods (Evidence Balance Ratio, Attribution Coding) operate on the raw response text using keyword detection. This approach trades sensitivity for speed and reproducibility. Future versions will incorporate LLM-based semantic scoring with human-validated calibration.
 
 ---
 
-*Paper draft v0.3 — March 18, 2026. Cross-model results complete (GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6).*
-*Next steps: (1) Run evaluations on additional models (GPT-4o, Claude Opus, Gemini Pro) for expanded comparison, (2) Human annotation validation on stratified sample, (3) Publish GitHub repo, (4) Submit to arXiv.*
+*Paper draft v1.1 -- March 20, 2026. Four-model evaluation complete (GPT-4o, GPT-4o-mini, Gemini 2.5 Flash, Claude Sonnet 4.6). GPT-4o evaluation includes partial category coverage due to 34.3% error rate in probability/statistical and social cognition categories.*
+*Next steps: (1) Investigate and resolve GPT-4o evaluation errors in probability/statistical and social cognition categories, (2) Human annotation validation on stratified sample, (3) Publish GitHub repo, (4) Submit to arXiv, (5) Submit to AIES 2026 (deadline May 21, 2026).*

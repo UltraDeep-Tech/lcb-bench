@@ -1693,7 +1693,7 @@ def build_test_case(bias_info, scenario, variant_num):
 
 
 def generate_all():
-    """Generate all 1,500 test cases and write to data/public/."""
+    """Generate all 1,500 test cases and write to data/."""
     total = 0
     stats = {}
 

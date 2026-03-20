@@ -121,6 +121,7 @@ class GeminiAdapter(ModelAdapter):
                 "or place a .gemini-sa.json service account file in the lcb-bench/ directory."
             )
         self._model = model
+        self._thinking_unsupported = False  # Set True if model rejects thinking_budget=0
 
     @property
     def model_id(self) -> str:
@@ -139,11 +140,14 @@ class GeminiAdapter(ModelAdapter):
                 contents.append(types.Content(role=role, parts=[types.Part(text=msg["content"])]))
         # Disable thinking for eval workloads — thinking tokens consume output budget
         # and are unnecessary for structured bias measurement tasks.
+        # Some models (e.g. gemini-2.5-pro) reject thinking_budget=0; we try with
+        # thinking disabled first, then fall back to no thinking config.
         thinking_config = None
-        try:
-            thinking_config = types.ThinkingConfig(thinking_budget=0)
-        except AttributeError:
-            pass  # Older SDK version without ThinkingConfig
+        if not self._thinking_unsupported:
+            try:
+                thinking_config = types.ThinkingConfig(thinking_budget=0)
+            except AttributeError:
+                pass  # Older SDK version without ThinkingConfig
 
         config = types.GenerateContentConfig(
             max_output_tokens=max_tokens,
@@ -166,7 +170,16 @@ class GeminiAdapter(ModelAdapter):
                                      "Try increasing max_tokens or check model response.")
                 return text
             except Exception as e:
-                if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                err_str = str(e)
+                # If model rejects thinking_budget=0, retry without thinking config
+                if "thinking_budget" in err_str and not self._thinking_unsupported:
+                    self._thinking_unsupported = True
+                    config = types.GenerateContentConfig(
+                        max_output_tokens=max_tokens,
+                        system_instruction=system_instruction,
+                    )
+                    continue
+                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
                     wait = 2 ** attempt + 1  # 2, 3, 5, 9, 17 seconds
                     if attempt < max_retries - 1:
                         time.sleep(wait)

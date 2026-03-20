@@ -98,7 +98,7 @@ Results are saved as JSON in `results/`. Each file contains:
 ## Requirements
 
 - Python 3.10+ (uses `match`/`case` syntax)
-- `pip install anthropic` (already installed in connection-engine env)
+- `pip install anthropic`
 - `pip install openai` (for OpenAI models)
 - `pip install google-genai` (for Gemini models)
 

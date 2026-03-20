@@ -338,7 +338,7 @@ Each evaluation run produces:
 Result files are versioned and archived at `lcb-bench/results/`. All results published in this paper are reproducible by running:
 
 ```bash
-cd modules/lcb-bench
+cd lcb-bench
 python3 -m harness run --model <model_id> --set public
 ```
 

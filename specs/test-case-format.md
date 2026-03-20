@@ -872,7 +872,7 @@ The evaluation harness reads test cases, sends prompts to models, extracts outpu
 
 ```python
 # Harness pseudocode
-for test_case in load_test_cases("data/public/"):
+for test_case in load_test_cases("data/"):
     baseline_output = model.generate(test_case.prompts.baseline)
     biased_output = model.generate(test_case.prompts.biased)
 

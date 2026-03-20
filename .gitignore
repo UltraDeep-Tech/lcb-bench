@@ -1,14 +1,12 @@
-# Python cache
 __pycache__/
 *.pyc
 *.pyo
-
-# Secrets
+.env
 .gemini-sa.json
-*.env
-
-# OS
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+_checkpoint_*.json
 .DS_Store
-
-# Checkpoints (temporary)
-results/_checkpoint_*
